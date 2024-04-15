@@ -5,4 +5,4 @@ app/__pycache__/
 app/booking/__pycache__/
 app/hotels/__pycache__/
 app/migrations/__pycache__/
-app/users/__pycache__
+app/users/__pycache__/
