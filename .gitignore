@@ -1,9 +1,9 @@
 .venv/
 alembic.ini
 test_data.sql
-app/__pycache__/
-app/booking/__pycache__/
-app/hotels/__pycache__/
-migrations/__pycache__/
-users/__pycache__/
-app/
+/app/__pycache__/
+/app/booking/__pycache__/
+/app/hotels/__pycache__/
+/app/migrations/__pycache__/
+/app/users/__pycache__/
+
