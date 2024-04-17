@@ -18,7 +18,7 @@ def verify_password(plain_password, hashed_password) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def create_access_token(data: dict) -> str:
+def create_access_token(data: dict) -> str:  # функция создана для создания токена
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + timedelta(minutes=30)
     to_encode.update({"exp": expire})
@@ -28,10 +28,8 @@ def create_access_token(data: dict) -> str:
     return encoded_jwt
 
 
-async def authentificate_user(email: EmailStr, password: str):
+async def authentificate_user(email: EmailStr, password: str):  # эта функция для аутентификации пользователя
     user = await UsersDAO.find_one_or_none(email=email)
     if not user and not verify_password(password, user.password):
         return None
     return user
-
-print(config.auth_config.algorithm, config.auth_config.key)
