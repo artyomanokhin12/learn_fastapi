@@ -6,3 +6,4 @@ app/booking/__pycache__/
 app/hotels/__pycache__/
 migrations/__pycache__/
 users/__pycache__/
+app/
