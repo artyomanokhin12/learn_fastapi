@@ -42,11 +42,10 @@ class HotelDAO(BaseDAO):
             )
             .join(booked_hotels, booked_hotels.c.hotel_id == Hotels.id, isouter=True)
             .where(
-                booked_hotels.c.rooms_left > 0
-                # and_(
-                #     booked_hotels.c.rooms_left > 0,
-                #     Hotels.location.like(f"%{location}%"),
-                # )
+                and_(
+                    booked_hotels.c.rooms_left > 0,
+                    Hotels.location.like(f"%{location}%"),
+                )
             )
         )
         async with async_session_maker() as session:

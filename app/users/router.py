@@ -20,6 +20,7 @@ async def register_user(user_data: SUserAuth):
         raise UserAlreadyExistsException
     hashed_password = get_password_hash(user_data.password)
     await UsersDAO.add(email=user_data.email, hashed_password=hashed_password)
+    return "Регистрация прошла успешно"
 
 
 @router.post("/login")
@@ -35,6 +36,7 @@ async def login_user(response: Response, user_data: SUserAuth):
 @router.post("/logout")
 async def logout_user(response: Response):
     response.delete_cookie("booking_access_token")
+    return "Вы вышли из аккаунта."
 
 
 @router.get('/me')

@@ -1,6 +1,8 @@
 import sys
 from os.path import dirname, abspath
 
+sys.path.insert(0, dirname(dirname(dirname(abspath(__file__)))))
+
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
@@ -9,11 +11,10 @@ from sqlalchemy import pool
 from alembic import context
 
 from app.database import DATABASE_URL, Base
-from app.hotels.models import Hotels, Rooms
+from app.hotels.models import Hotels
 from app.users.models import Users
 from app.bookings.models import Bookings
-
-sys.path.insert(0, dirname(dirname(dirname(abspath(__file__)))))
+from app.hotels.rooms.models import Rooms
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

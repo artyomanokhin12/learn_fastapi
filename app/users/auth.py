@@ -3,6 +3,7 @@ from passlib.context import CryptContext
 from jose import jwt
 from pydantic import EmailStr
 
+from app.exceptions import IncorrectEmailOrPasswordException
 from app.users.dao import UsersDAO
 
 from app.config import Config, load_config
@@ -30,6 +31,6 @@ def create_access_token(data: dict) -> str:  # функция создана д�
 
 async def authentificate_user(email: EmailStr, password: str):  # эта функция для аутентификации пользователя
     user = await UsersDAO.find_one_or_none(email=email)
-    if not user and not verify_password(password, user.password):
-        return None
+    if not (user and verify_password(password, user.hashed_password)):
+        raise IncorrectEmailOrPasswordException
     return user
