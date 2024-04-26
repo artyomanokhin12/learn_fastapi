@@ -3,4 +3,5 @@ alembic.ini
 test_data.sql
 **/__pycache__
 app/__pycache__/
+app/static/images/
 

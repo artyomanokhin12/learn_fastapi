@@ -2,6 +2,8 @@ from datetime import date
 from typing import Optional
 
 from fastapi import Depends, FastAPI, Query
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from app.bookings.router import router as router_bookings
@@ -10,8 +12,11 @@ from app.hotels.router import router as router_hotel
 from app.hotels.rooms.router import router as router_rooms
 
 from app.pages.router import router as router_pages
+from app.images.router import router as router_images
 
 app = FastAPI()
+
+app.mount("/static", StaticFiles(directory="app/static"), "static")
 
 app.include_router(router=router_users)
 app.include_router(router=router_bookings)
@@ -19,6 +24,20 @@ app.include_router(router=router_hotel)
 app.include_router(router=router_rooms)
 
 app.include_router(router_pages)
+app.include_router(router_images)
+
+origins = [
+    "http://localhost:3000"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # Разрешили домены, с которых можно делать обращение к нашему API
+    allow_credentials=True, # Разрешает делать куки, и, если включено, при каждом запросе посылает куки. Если не включено - не сможем распознать, кто к нам пришел
+    allow_methods=["GET", "POST", "OPTIONS", "DELETE", "PATCH", "PUT"], # Разрешает методы, которые применимы к API
+    allow_headers=["Content-type", "Set-Cookie", 
+                   "Access-Control-Allow-Headers", "Access-Authorizations"], # Разрешает заголовки, применимые к нашему API 
+)
 
 # Пример написания эндпоинта со всеми моментами
 #
