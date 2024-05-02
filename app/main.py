@@ -1,10 +1,10 @@
-from datetime import date
-from typing import Optional
-
-from fastapi import Depends, FastAPI, Query
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
+from redis import asyncio as aioredis
 
 from app.bookings.router import router as router_bookings
 from app.users.router import router as router_users
@@ -14,7 +14,15 @@ from app.hotels.rooms.router import router as router_rooms
 from app.pages.router import router as router_pages
 from app.images.router import router as router_images
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    redis = aioredis.from_url("redis://localhost:6379", encoding="utf8", decode_responses=True)
+    FastAPICache.init(RedisBackend(redis), prefix="cache")
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 app.mount("/static", StaticFiles(directory="app/static"), "static")
 
@@ -38,6 +46,14 @@ app.add_middleware(
     allow_headers=["Content-type", "Set-Cookie", 
                    "Access-Control-Allow-Headers", "Access-Authorizations"], # Разрешает заголовки, применимые к нашему API 
 )
+
+
+# @app.on_event("startup")
+# async def startup():
+#     redis = aioredis.from_url("redis://localhost:6379", encoding="utf8", decode_responses=True)
+#     FastAPICache.init(RedisBackend(redis), prefix="cache")
+
+
 
 # Пример написания эндпоинта со всеми моментами
 #

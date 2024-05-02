@@ -2,7 +2,7 @@
 
 from datetime import date
 from fastapi import HTTPException
-from sqlalchemy import and_, delete, func, insert, or_, select
+from sqlalchemy import and_, delete, func, insert, or_, select, inspect
 
 from app.bookings.models import Bookings
 from app.dao.base import BaseDAO
@@ -36,7 +36,7 @@ class BookingDAO(BaseDAO):
         async with async_session_maker() as session:
             booked_rooms = select(Bookings).where(
                 and_(
-                    Bookings.room_id == 1,
+                    Bookings.room_id == room_id,
                     or_(
                         and_(Bookings.date_from >= date_from, 
                             Bookings.date_from <= date_to
@@ -56,8 +56,6 @@ class BookingDAO(BaseDAO):
             ).where(Rooms.id == room_id).group_by(
                 Rooms.quantity, booked_rooms.c.room_id
             )
-
-            print(get_rooms_left.compile(engine, compile_kwargs={'literal_binds': True}))
 
             rooms_left = await session.execute(get_rooms_left)
             rooms_left: int = rooms_left.scalar()

@@ -20,10 +20,19 @@ class AuthConfig:
 
 
 @dataclass
+class SMTP:
+    host: str 
+    port: str 
+    user: str 
+    password: str 
+
+
+@dataclass
 class Config:
 
     host_config: HostConfig
     auth_config: AuthConfig
+    smtp_service: SMTP
 
 
 def load_config(path: str | None = None) -> Config:
@@ -42,5 +51,11 @@ def load_config(path: str | None = None) -> Config:
         auth_config=AuthConfig(
             key=env("auth_key"),
             algorithm=env("auth_algorythm")
+        ),
+        smtp_service=SMTP(
+            host=env("SMTP_HOST"),
+            port=env("SMTP_PORT"),
+            user=env("SMTP_USER"),
+            password=env("SMTP_PASS")
         )
     )
