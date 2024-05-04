@@ -7,6 +7,7 @@ from fastapi_cache.backends.redis import RedisBackend
 from redis import asyncio as aioredis
 from sqladmin import Admin
 
+from app.admin.auth import authentication_backend
 from app.admin.views import BookingsAdmin, HotelsAdmin, RoomsAdmin, UsersAdmin
 from app.database import engine
 from app.bookings.router import router as router_bookings
@@ -50,7 +51,7 @@ app.add_middleware(
                    "Access-Control-Allow-Headers", "Access-Authorizations"], # Разрешает заголовки, применимые к нашему API 
 )
 
-admin = Admin(app, engine)
+admin = Admin(app, engine, authentication_backend=authentication_backend)
 
 admin.add_view(UsersAdmin)
 admin.add_view(HotelsAdmin)
