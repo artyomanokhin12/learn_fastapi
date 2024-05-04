@@ -28,7 +28,7 @@ class HotelsAdmin(ModelView, model=Hotels):
     icon = "fa-solid fa-hotel"
 
 class RoomsAdmin(ModelView, model=Rooms):
-    column_list = [c.name for c in Rooms.__table__.c] + [Rooms.bookings, Rooms.hotels]
+    column_list = [c.name for c in Rooms.__table__.c] + [Rooms.bookings, Rooms.hotel]
     name = "Комната"
     name_plural = "Комнаты"
     icon = "fa-solid fa-bed"
