@@ -1,14 +1,11 @@
 from pydantic import EmailStr
-from app.config import load_config
-from app.tasks.celery import celery
 from PIL import Image
 from pathlib import Path
 import smtplib
 
+from app.config import settings
 from app.tasks.email_templates import create_booking_confirmation_template
-from app.config import load_config
-
-config = load_config()
+from app.tasks.celery import celery
 
 
 @celery.task
@@ -31,6 +28,6 @@ def send_booking_confirmation_email(
     test_email = "dudos1616@gmail.com"
     msg_content = create_booking_confirmation_template(booking, test_email)
 
-    with smtplib.SMTP_SSL(config.smtp_service.host, config.smtp_service.port) as server:
-        server.login(config.smtp_service.user, config.smtp_service.password)
+    with smtplib.SMTP_SSL(settings.SMTP_HOST, settings.SMTP_PORT) as server:
+        server.login(settings.SMTP_USER, settings.SMTP_PASS)
         server.send_message(msg_content)

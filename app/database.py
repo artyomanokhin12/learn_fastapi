@@ -1,15 +1,13 @@
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-from app.config import Config, load_config
+from app.config import settings
 
-config: Config = load_config()
-
-DB_USER = config.host_config.DB_USER
-DB_PASS = config.host_config.DB_PASS
-DB_HOST = config.host_config.DB_HOST
-DB_PORT = config.host_config.DB_PORT
-DB_NAME = config.host_config.DB_NAME
+DB_USER = settings.DB_USER
+DB_PASS = settings.DB_PASS
+DB_HOST = settings.DB_HOST
+DB_PORT = settings.DB_PORT
+DB_NAME = settings.DB_NAME
 
 
 DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"

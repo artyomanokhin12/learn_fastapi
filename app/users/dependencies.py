@@ -3,10 +3,8 @@ from jose import jwt, JWTError
 from fastapi import Depends, Request
 
 from app.users.dao import UsersDAO
-from app.config import load_config
+from app.config import settings
 from app.exceptions import TokenExpiredException, TokenAbsentException, IncorrectTokenFormatException, UserIsNotPresentException
-
-config = load_config()
 
 def get_token(request: Request):
     token = request.cookies.get("booking_access_token")
@@ -18,7 +16,7 @@ def get_token(request: Request):
 async def get_current_user(token: str = Depends(get_token)):
     try:
         payload = jwt.decode(
-            token, config.auth_config.key, config.auth_config.algorithm
+            token, settings.AUTH_KEY, settings.AUTH_ALGORITHM
         )
     except JWTError:
         raise IncorrectTokenFormatException

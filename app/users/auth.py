@@ -5,10 +5,8 @@ from pydantic import EmailStr
 
 from app.exceptions import IncorrectEmailOrPasswordException
 from app.users.dao import UsersDAO
+from app.config import settings
 
-from app.config import Config, load_config
-
-config: Config = load_config()
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated="auto")
 
@@ -24,7 +22,7 @@ def create_access_token(data: dict) -> str:  # функция создана д�
     expire = datetime.now(timezone.utc) + timedelta(minutes=30)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(
-        to_encode, config.auth_config.key, config.auth_config.algorithm
+        to_encode, settings.AUTH_KEY, settings.AUTH_ALGORITHM
     )
     return encoded_jwt
 

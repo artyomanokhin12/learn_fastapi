@@ -1,9 +1,7 @@
-from dataclasses import dataclass
-from environs import Env
+from pydantic_settings import BaseSettings
 
 
-@dataclass
-class HostConfig:
+class Settings(BaseSettings):
 
     DB_HOST: str
     DB_PORT: int
@@ -12,50 +10,16 @@ class HostConfig:
     DB_NAME: str
 
 
-@dataclass
-class AuthConfig:
+    AUTH_KEY: str 
+    AUTH_ALGORITHM: str
 
-    key: str
-    algorithm: str
+    SMTP_HOST: str
+    SMTP_PORT: int
+    SMTP_USER: str
+    SMTP_PASS: str
 
-
-@dataclass
-class SMTP:
-    host: str 
-    port: str 
-    user: str 
-    password: str 
+    class Config:
+        env_file = ".env"
 
 
-@dataclass
-class Config:
-
-    host_config: HostConfig
-    auth_config: AuthConfig
-    smtp_service: SMTP
-
-
-def load_config(path: str | None = None) -> Config:
-
-    env = Env()
-    env.read_env()
-
-    return Config(
-        host_config = HostConfig(
-            DB_NAME=env("DB_NAME"),
-            DB_PASS=env("DB_PASS"),
-            DB_PORT=env("DB_PORT"),
-            DB_USER=env("DB_USER"),
-            DB_HOST=env("DB_HOST")
-        ),
-        auth_config=AuthConfig(
-            key=env("auth_key"),
-            algorithm=env("auth_algorythm")
-        ),
-        smtp_service=SMTP(
-            host=env("SMTP_HOST"),
-            port=env("SMTP_PORT"),
-            user=env("SMTP_USER"),
-            password=env("SMTP_PASS")
-        )
-    )
+settings = Settings()

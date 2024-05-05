@@ -1,8 +1,6 @@
 from email.message import EmailMessage
-from app.config import load_config
+from app.config import settings
 from pydantic import EmailStr
-
-config = load_config()
 
 def create_booking_confirmation_template(
         booking: dict,
@@ -11,7 +9,7 @@ def create_booking_confirmation_template(
     email = EmailMessage()
 
     email["Subject"] = "Подтверждение бронирования"
-    email["From"] = config.smtp_service.user
+    email["From"] = settings.SMTP_USER
     email["To"] = email_to
 
     email.set_content(
