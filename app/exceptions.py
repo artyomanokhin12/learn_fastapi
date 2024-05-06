@@ -53,3 +53,11 @@ class CannotBookHotelForLongPeriod(BookingExceptions):
     detail="Невозможно забронировать отель сроком более месяца"
 
 
+class IncorrectDateSet(BookingExceptions):
+    status_code=status.HTTP_400_BAD_REQUEST
+    detail="Некорректно введена дата въезда (дата выезда)"
+
+
+class LargePeriodError(BookingExceptions):
+    status_code=status.HTTP_400_BAD_REQUEST
+    detail="Задан слишком большой временной промежуток"

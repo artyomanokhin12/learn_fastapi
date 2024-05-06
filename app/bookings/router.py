@@ -5,7 +5,7 @@ from sqlalchemy import inspect
 
 from app.bookings.dao import BookingDAO
 from app.bookings.schemas import SBookings
-from app.exceptions import RoomCannotBeBooked
+from app.exceptions import IncorrectDateSet, LargePeriodError, RoomCannotBeBooked
 from app.tasks.tasks import send_booking_confirmation_email
 from app.users.dependencies import get_current_user
 from app.users.models import Users
@@ -30,12 +30,17 @@ async def add_bookinig(
     room_id: int, date_from: date, date_to: date,
     user: Users = Depends(get_current_user),
 ):
-    booking = await BookingDAO.add(user.id, room_id, date_from, date_to)
-    if not booking:
-        raise RoomCannotBeBooked
-    booking_json = TypeAdapter(SBookings).validate_python(obj_to_dict(booking)).model_dump()
-    send_booking_confirmation_email.delay(booking_json, user.email)
-    return booking_json
+    if (date_to - date_from).days < 0:
+         raise IncorrectDateSet
+    elif (date_to - date_from).days > 30:
+         raise LargePeriodError
+    else:
+        booking = await BookingDAO.add(user.id, room_id, date_from, date_to)
+        if not booking:
+            raise RoomCannotBeBooked
+        booking_json = TypeAdapter(SBookings).validate_python(obj_to_dict(booking)).model_dump()
+        send_booking_confirmation_email.delay(booking_json, user.email)
+        return booking_json
     
 
 @router.delete('/{booking_id}')
