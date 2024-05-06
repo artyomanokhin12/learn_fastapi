@@ -31,11 +31,10 @@ async def add_bookinig(
     user: Users = Depends(get_current_user),
 ):
     booking = await BookingDAO.add(user.id, room_id, date_from, date_to)
-    booking_json = TypeAdapter(SBookings).validate_python(obj_to_dict(booking)).model_dump()
-    if not booking_json:
+    if not booking:
         raise RoomCannotBeBooked
+    booking_json = TypeAdapter(SBookings).validate_python(obj_to_dict(booking)).model_dump()
     send_booking_confirmation_email.delay(booking_json, user.email)
-    # return "Вы забронировали комнату"
     return booking_json
     
 
