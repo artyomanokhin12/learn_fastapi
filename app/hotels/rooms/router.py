@@ -1,6 +1,7 @@
 from datetime import date, datetime, timedelta
 
 from fastapi import APIRouter, Query
+
 from app.hotels.rooms.dao import RoomsDAO
 from app.hotels.rooms.schemas import SRoom
 

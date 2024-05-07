@@ -19,6 +19,7 @@
 
 
 import pytest
+
 from app.users.dao import UsersDAO
 
 

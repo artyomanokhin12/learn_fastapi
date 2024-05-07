@@ -3,7 +3,6 @@ from fastapi.templating import Jinja2Templates
 
 from app.hotels.router import find_hotel_by_location
 
-
 router = APIRouter(
     prefix='/pages',
     tags=['Фронтэнд']

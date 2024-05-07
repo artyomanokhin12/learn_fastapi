@@ -1,19 +1,19 @@
 # Data Access Object = DAO
 
 from datetime import date
+
 from fastapi import HTTPException
-from sqlalchemy import and_, delete, func, insert, or_, select, inspect
+from sqlalchemy import and_, delete, func, insert, inspect, or_, select
 
 from app.bookings.models import Bookings
 from app.dao.base import BaseDAO
+from app.database import async_session_maker, engine
 from app.hotels.rooms.models import Rooms
-from app.database import engine, async_session_maker
 
 
 class BookingDAO(BaseDAO):
 
-    model = Bookings 
-
+    model = Bookings
 
     @classmethod
     async def find_all_with_images(cls, user_id: int):
@@ -29,32 +29,40 @@ class BookingDAO(BaseDAO):
             )
             result = await session.execute(query)
             return result.mappings().all()
-        
 
     @classmethod
     async def add(cls, user_id: int, room_id: int, date_from: date, date_to: date):
         async with async_session_maker() as session:
-            booked_rooms = select(Bookings).where(
-                and_(
-                    Bookings.room_id == room_id,
-                    or_(
-                        and_(Bookings.date_from >= date_from, 
-                            Bookings.date_from <= date_to
+            booked_rooms = (
+                select(Bookings)
+                .where(
+                    and_(
+                        Bookings.room_id == room_id,
+                        or_(
+                            and_(
+                                Bookings.date_from >= date_from,
+                                Bookings.date_from <= date_to,
+                            ),
+                            and_(
+                                Bookings.date_from <= date_from,
+                                Bookings.date_to > date_from,
+                            ),
                         ),
-                        and_(
-                            Bookings.date_from <= date_from,
-                            Bookings.date_to > date_from
-                        ) 
                     )
                 )
-            ).cte('booked_rooms')
+                .cte("booked_rooms")
+            )
 
-            get_rooms_left = select(
-                (Rooms.quantity - func.count(booked_rooms.c.room_id)).label('rooms_left')
-            ).select_from(Rooms).join(
-                booked_rooms, booked_rooms.c.room_id == Rooms.id, isouter=True
-            ).where(Rooms.id == room_id).group_by(
-                Rooms.quantity, booked_rooms.c.room_id
+            get_rooms_left = (
+                select(
+                    (Rooms.quantity - func.count(booked_rooms.c.room_id)).label(
+                        "rooms_left"
+                    )
+                )
+                .select_from(Rooms)
+                .join(booked_rooms, booked_rooms.c.room_id == Rooms.id, isouter=True)
+                .where(Rooms.id == room_id)
+                .group_by(Rooms.quantity, booked_rooms.c.room_id)
             )
 
             rooms_left = await session.execute(get_rooms_left)
@@ -63,14 +71,18 @@ class BookingDAO(BaseDAO):
             if rooms_left > 0:
                 get_price = select(Rooms.price).filter_by(id=room_id)
                 price = await session.execute(get_price)
-                price:int = price.scalar()
-                add_booking = insert(Bookings).values(
-                    room_id=room_id,
-                    user_id=user_id,
-                    date_from=date_from,
-                    date_to=date_to,
-                    price=price,
-                ).returning(Bookings)
+                price: int = price.scalar()
+                add_booking = (
+                    insert(Bookings)
+                    .values(
+                        room_id=room_id,
+                        user_id=user_id,
+                        date_from=date_from,
+                        date_to=date_to,
+                        price=price,
+                    )
+                    .returning(Bookings)
+                )
 
                 new_booking = await session.execute(add_booking)
                 await session.commit()
