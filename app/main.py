@@ -1,6 +1,8 @@
 from contextlib import asynccontextmanager
+import time
 
-from fastapi import FastAPI
+import sentry_sdk
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi_cache import FastAPICache
@@ -18,6 +20,7 @@ from app.hotels.router import router as router_hotel
 from app.images.router import router as router_images
 from app.pages.router import router as router_pages
 from app.users.router import router as router_users
+from app.logger import logger
 
 
 @asynccontextmanager
@@ -25,6 +28,13 @@ async def lifespan(app: FastAPI):
     redis = aioredis.from_url(f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}", encoding="utf8", decode_responses=True)
     FastAPICache.init(RedisBackend(redis), prefix="cache")
     yield
+
+
+sentry_sdk.init(
+    dsn="https://0ea5d4ff8b763c00edccb38186d89ad5@o4507250444861440.ingest.de.sentry.io/4507250450825296",
+    traces_sample_rate=1.0,
+    profiles_sample_rate=1.0,
+)
 
 
 app = FastAPI(lifespan=lifespan)
@@ -58,6 +68,18 @@ admin.add_view(UsersAdmin)
 admin.add_view(HotelsAdmin)
 admin.add_view(RoomsAdmin)
 admin.add_view(BookingsAdmin)
+
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    logger.info("Request handling time", extra={
+        "process_time": round(process_time, 4)
+    })
+    return response
+
 
 # @app.on_event("startup")
 # async def startup():
