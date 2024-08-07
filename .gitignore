@@ -5,3 +5,5 @@ test_data.sql
 app/__pycache__/
 app/static/images/
 .env
+test.py
+.env-non-dev

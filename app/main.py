@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from redis import asyncio as aioredis
+from prometheus_fastapi_instrumentator import Instrumentator
 from sqladmin import Admin
 
 from app.admin.auth import authentication_backend
@@ -80,6 +81,11 @@ async def add_process_time_header(request: Request, call_next):
     })
     return response
 
+instrumentator = Instrumentator(
+    should_group_status_codes=False,
+    excluded_handlers=[".*admin.*", "/metrics"],
+)
+instrumentator.instrument(app).expose(app)
 
 # @app.on_event("startup")
 # async def startup():
